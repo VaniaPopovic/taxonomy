@@ -1,18 +1,18 @@
-import { User } from "next-auth"
-import { JWT } from "next-auth/jwt"
+import { JWT } from "@auth/core/jwt"
+import NextAuth, { type DefaultSession } from "next-auth"
 
 type UserId = string
 
-declare module "next-auth/jwt" {
+declare module "@auth/core/jwt" {
   interface JWT {
     id: UserId
   }
 }
 
-declare module "next-auth" {
+declare module "@auth/core" {
   interface Session {
-    user: User & {
+    user: {
       id: UserId
-    }
+    } & DefaultSession["user"]
   }
 }

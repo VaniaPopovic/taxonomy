@@ -1,7 +1,7 @@
-import { PrismaAdapter } from "@next-auth/prisma-adapter"
-import { NextAuthOptions } from "next-auth"
-import EmailProvider from "next-auth/providers/email"
-import GitHubProvider from "next-auth/providers/github"
+import { PrismaAdapter } from "@auth/prisma-adapter"
+import NextAuth from "next-auth"
+import Email from "next-auth/providers/email"
+import GitHub from "next-auth/providers/github"
 import { Client } from "postmark"
 
 import { env } from "@/env.mjs"
@@ -10,7 +10,10 @@ import { db } from "@/lib/db"
 
 const postmarkClient = new Client(env.POSTMARK_API_TOKEN)
 
-export const authOptions: NextAuthOptions = {
+export const {
+  handlers: { GET, POST },
+  auth,
+} = NextAuth({
   adapter: PrismaAdapter(db),
   session: {
     strategy: "jwt",
@@ -19,11 +22,8 @@ export const authOptions: NextAuthOptions = {
     signIn: "/login",
   },
   providers: [
-    GitHubProvider({
-      clientId: env.GITHUB_CLIENT_ID,
-      clientSecret: env.GITHUB_CLIENT_SECRET,
-    }),
-    EmailProvider({
+    GitHub,
+    Email({
       from: env.SMTP_FROM,
       sendVerificationRequest: async ({ identifier, url, provider }) => {
         const user = await db.user.findUnique({
@@ -98,5 +98,12 @@ export const authOptions: NextAuthOptions = {
         picture: dbUser.image,
       }
     },
+
+    async authorized() {
+      // This is a work-around for handling redirect on auth pages.
+      // We return true here so that the middleware function above
+      // is always called.
+      return true
+    },
   },
-}
+})

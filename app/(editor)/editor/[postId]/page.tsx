@@ -1,7 +1,6 @@
 import { notFound, redirect } from "next/navigation"
 import { Post, User } from "@prisma/client"
 
-import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { getCurrentUser } from "@/lib/session"
 import { Editor } from "@/components/editor"
@@ -23,7 +22,7 @@ export default async function EditorPage({ params }: EditorPageProps) {
   const user = await getCurrentUser()
 
   if (!user) {
-    redirect(authOptions?.pages?.signIn || "/login")
+    redirect("/login")
   }
 
   const post = await getPostForUser(params.postId, user.id)

@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation"
 
-import { authOptions } from "@/lib/auth"
+import { auth } from "@/lib/auth"
 import { getCurrentUser } from "@/lib/session"
 import { stripe } from "@/lib/stripe"
 import { getUserSubscriptionPlan } from "@/lib/subscription"
@@ -26,7 +26,7 @@ export default async function BillingPage() {
   const user = await getCurrentUser()
 
   if (!user) {
-    redirect(authOptions?.pages?.signIn || "/login")
+    redirect("/login")
   }
 
   const subscriptionPlan = await getUserSubscriptionPlan(user.id)
